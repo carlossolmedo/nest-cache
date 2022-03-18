@@ -1,17 +1,20 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Cache } from 'cache-manager';
+import { Injectable } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class ApiCacheService {
   constructor(
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @InjectQueue('api') private readonly queue: Queue,
     private readonly configService: ConfigService,
   ) {}
 
   async addToCache(key: string, value: any[]) {
     try {
-      await this.cacheManager.set(key, value); // override { ttl: 10000 }
+      await this.queue.add('api-job', {
+        data: value,
+      });
     } catch (error) {
       console.error(error);
     }
@@ -19,8 +22,8 @@ export class ApiCacheService {
 
   async getFromCache(key: string) {
     try {
-      const value = await this.cacheManager.get(key);
-      return value;
+      // const value = await this.cacheManager.get(key);
+      return key;
     } catch (error) {
       console.error(error);
     }
