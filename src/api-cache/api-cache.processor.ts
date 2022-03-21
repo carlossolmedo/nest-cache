@@ -11,5 +11,6 @@ export class ApiProcessor {
     this.logger.debug('Start bulling...');
     this.logger.debug(job.data);
     this.logger.debug('Data save completed');
+    return job.data;
   }
 }
